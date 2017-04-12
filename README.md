@@ -9,13 +9,13 @@ It was created as an experimental parser for VisualForce inline JS.
 You can use module directly in order to get Acorn instance with plugin installed:
 
 ```javascript
-const acorn = require('acorn-visualforce').default;
+const acorn = require('@salesforce/acorn-visualforce').default;
 ```
 
 Or you can use `inject.js` for injecting plugin into your own version of Acorn like following:
 
 ```javascript
-const acorn = require('acorn-visualforce/inject').default(require('./custom-acorn'));
+const acorn = require('@salesforce/acorn-visualforce/inject').default(require('./custom-acorn'));
 ```
 
 Then, use `plugins` option whenever you need to support VisualForce merge fields while parsing:
