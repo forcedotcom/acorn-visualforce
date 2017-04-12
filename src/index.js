@@ -5,8 +5,8 @@
  * or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import acornApexInjector from './inject'
+import acornInjector from './inject'
 // acorn uses rollup that is not compatible with webpack import
 const acorn = require('acorn')
 
-export default acornApexInjector(acorn)
+export default acornInjector(acorn)

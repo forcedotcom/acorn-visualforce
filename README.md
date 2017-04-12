@@ -1,4 +1,4 @@
-# Acorn-APEX
+# Acorn-VisualForce
 
 This is plugin for [Acorn](http://marijnhaverbeke.nl/acorn/) - a tiny, fast JavaScript parser, written completely in JavaScript.
 
@@ -9,13 +9,13 @@ It was created as an experimental parser for VisualForce inline JS.
 You can use module directly in order to get Acorn instance with plugin installed:
 
 ```javascript
-const acorn = require('acorn-apex');
+const acorn = require('acorn-visualforce');
 ```
 
 Or you can use `inject.js` for injecting plugin into your own version of Acorn like following:
 
 ```javascript
-const acorn = require('acorn-apex/inject')(require('./custom-acorn'));
+const acorn = require('acorn-visualforce/inject')(require('./custom-acorn'));
 ```
 
 Then, use `plugins` option whenever you need to support VisualForce merge fields while parsing:
@@ -23,7 +23,7 @@ Then, use `plugins` option whenever you need to support VisualForce merge fields
 ```javascript
 const code = 'var foo = {! JSENCODE(someApexVariable) };'
 const ast = acorn.parse(code, {
-  plugins: { apex: true }
+  plugins: { vfel: true }
 });
 ```
 
