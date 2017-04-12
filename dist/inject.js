@@ -97,7 +97,6 @@ exports.default = function (acorn) {
 	// new tokens and contexts
 
 	tc.vfel_expr = new TokContext('{!...}', true, true);
-	// tc.string_with_vfel = new TokContext("'foo{!...}bar'", true, true, p => p.readString());
 	tt.vfelExpressionStart = new TokenType('vfelExpressionStart', {
 		beforeExpr: true,
 		startsExpr: true
@@ -366,11 +365,13 @@ exports.default = function (acorn) {
 			return (/[a-zA-Z$_]/.test(String.fromCharCode(charCode))
 			);
 		},
-		extractVFELExpressionsFromString: function extractVFELExpressionsFromString(stringValue) {
-			var expressions = [];
-			for (var offset = stringValue.indexOf('{!'); offset !== -1; offset = stringValue.indexOf('{!', offset + 1)) {
-				expressions.push(acorn.parseExpressionAt(stringValue, offset, this.options));
-			}return expressions;
+		readVfelExpression: function readVfelExpression() {
+			return acorn.parseExpressionAt(this.input, this.pos, this.options);
+			// const expressions = []
+			// for (let offset = stringValue.indexOf('{!'); offset !== -1; offset = stringValue.indexOf('{!', offset + 1))
+			// 	expressions.push(acorn.parseExpressionAt(stringValue, offset, this.options))
+			//
+			// return expressions
 		}
 	};
 
@@ -436,6 +437,64 @@ exports.default = function (acorn) {
 				};
 			});
 
+			instance.extend('readString', function () {
+				return function vfelExtendedReadString(quote) {
+					this.pos += 1; // consuming opening quote
+					var out = '',
+					    chunkStart = this.pos;
+					for (;;) {
+						if (this.pos >= this.input.length) this.raise(this.start, 'Unterminated string constant');
+						var ch = this.input.charCodeAt(this.pos);
+						if (ch === 10 || ch === 13 || ch === 0x2028 || ch === 0x2029) this.raise(this.start, 'Unterminated string constant');
+
+						// Found closing quote, done reading string
+						if (ch === quote) break;
+
+						// Read escaped char and start over
+						if (ch === 92) {
+							// '\'
+							out += this.input.slice(chunkStart, this.pos);
+							out += this.readEscapedChar(false);
+							chunkStart = this.pos;
+							continue;
+						}
+
+						// Found '{!', read VFEL expression and start over
+						if (ch === 123 && this.input.charCodeAt(this.pos + 1) === 33) {
+							var vfelExpr = this.readVfelExpression();
+
+							if (vfelExpr && vfelExpr.end) {
+								// parsed a vfelExpression inside string, moving further
+								this.pos = vfelExpr.end;
+								if (Array.isArray(this.vfelExpressionsInString)) this.vfelExpressionsInString.push(vfelExpr);else this.vfelExpressionsInString = [vfelExpr];
+							} else
+								// could not parse a vfelExpression, just consuming {! as regular characters
+								this.pos += 2;
+
+							continue;
+						}
+
+						// Consuming all other chars
+						this.pos += 1;
+					}
+
+					out += this.input.slice(chunkStart, this.pos);
+					this.pos += 1; // consuming closing quote
+					return this.finishToken(tt.string, out);
+				};
+			});
+
+			instance.extend('parseLiteral', function (inner) {
+				return function vfelExtendedParseLiteral(value) {
+					var node = inner.call(this, value);
+					if (Array.isArray(this.vfelExpressionsInString) && this.vfelExpressionsInString.length) {
+						node.vfelExpressions = [].concat(_toConsumableArray(this.vfelExpressionsInString));
+						this.vfelExpressionsInString = [];
+					}
+					return node;
+				};
+			});
+
 			instance.extend('finishNode', function (inner) {
 				return function vfelExtendedFinishNode(node, type) {
 					// Hack: parse VFELExpression as AssignmentExpression
@@ -445,9 +504,6 @@ exports.default = function (acorn) {
 						if (allowedNodeTypes.has(type)) return inner.call(this, node, 'VFEL' + type);
 						this.raise(node.start, 'Unexpected node type ' + type + ' in VFEL context');
 					}
-
-					// Hack #2: If we see string, we want to check if it has merge fields in it and put it under "expressions" property
-					if (type === 'Literal' && typeof node.value === 'string') node.vfelExpressions = this.extractVFELExpressionsFromString(node.value);
 
 					return inner.call(this, node, type);
 				};
@@ -460,7 +516,7 @@ exports.default = function (acorn) {
 	return acorn;
 };
 
-module.exports = exports['default'];
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 /***/ })
 

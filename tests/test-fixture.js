@@ -366,8 +366,8 @@ export default {
 		} ],
 		sourceType: 'script',
 	},
-    // Strings with VFEL expressions inside
-	'"String with {! \'VFEL\'} expression {! \'in\'} it"': {
+  // Strings with VFEL expressions inside
+	"'String with {! 'VFEL'} expression {! 'in'} it'": {
 		type: 'Program',
 		start: 0,
 		end: 47,
@@ -381,30 +381,77 @@ export default {
 					start: 0,
 					end: 47,
 					value: "String with {! 'VFEL'} expression {! 'in'} it",
-					raw: "\"String with {! 'VFEL'} expression {! 'in'} it\"",
+					raw: "'String with {! 'VFEL'} expression {! 'in'} it'",
 					vfelExpressions: [
 						{
 							type: 'VFELExpression',
-							start: 12,
-							end: 22,
+							start: 13,
+							end: 23,
 							value: {
 								type: 'VFELLiteral',
-								start: 14,
-								end: 21,
+								start: 15,
+								end: 22,
 								value: 'VFEL',
 								raw: " 'VFEL'",
 							},
 						},
 						{
 							type: 'VFELExpression',
-							start: 34,
-							end: 42,
+							start: 35,
+							end: 43,
 							value: {
 								type: 'VFELLiteral',
-								start: 36,
-								end: 41,
+								start: 37,
+								end: 42,
 								value: 'in',
 								raw: " 'in'",
+							},
+						},
+					],
+				},
+			},
+		],
+		sourceType: 'script',
+	},
+	// Double quoted test
+	'"String with {! "VFEL"} expression {! "in"} it"': {
+		type: 'Program',
+		start: 0,
+		end: 47,
+		body: [
+			{
+				type: 'ExpressionStatement',
+				start: 0,
+				end: 47,
+				expression: {
+					type: 'Literal',
+					start: 0,
+					end: 47,
+					value: 'String with {! "VFEL"} expression {! "in"} it',
+					raw: '"String with {! "VFEL"} expression {! "in"} it"',
+					vfelExpressions: [
+						{
+							type: 'VFELExpression',
+							start: 13,
+							end: 23,
+							value: {
+								type: 'VFELLiteral',
+								start: 15,
+								end: 22,
+								value: 'VFEL',
+								raw: ' "VFEL"',
+							},
+						},
+						{
+							type: 'VFELExpression',
+							start: 35,
+							end: 43,
+							value: {
+								type: 'VFELLiteral',
+								start: 37,
+								end: 42,
+								value: 'in',
+								raw: ' "in"',
 							},
 						},
 					],

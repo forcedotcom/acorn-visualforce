@@ -9,6 +9,8 @@ import ecmaRegressionFixture from './ecma-regression-fixture'
 import fixture from './test-fixture'
 import test from 'tape'
 
+const originalAcorn = require('acorn')
+
 test('Parsing different VFEL expressions to AST', assert => {
 	const tests = Object.keys(fixture)
 	assert.plan(tests.length)
@@ -19,14 +21,11 @@ test('Parsing different VFEL expressions to AST', assert => {
 })
 
 test('Original acorn tests to check for regressions', assert => {
-	const tests = Object.keys(ecmaRegressionFixture)
-	assert.plan(tests.length)
-	tests.forEach(codeSnippet => {
-		const ast = acorn.parse(codeSnippet, {
-			plugins: { vfel: true },
-			locations: true,
-		})
-		assert.deepEqual(ast, ecmaRegressionFixture[codeSnippet], `Parsing '${ codeSnippet }'`)
+	assert.plan(ecmaRegressionFixture.length)
+	ecmaRegressionFixture.forEach(codeSnippet => {
+		const vfelAST = acorn.parse(codeSnippet, { plugins: { vfel: true } })
+		const originalAST = originalAcorn.parse(codeSnippet)
+		assert.deepEqual(vfelAST, originalAST, `Parsing '${ codeSnippet }'`)
 	})
 })
 
