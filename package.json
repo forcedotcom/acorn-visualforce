@@ -1,0 +1,56 @@
+{
+    "name": "acorn-visualforce",
+    "version": "1.0.0",
+    "description": "acorn extension for Salesforce js dialect with merge fields",
+    "main": "dist/index.js",
+    "author": "Salesforce",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "salesforce",
+        "visualforce",
+        "vfel"
+    ],
+    "scripts": {
+        "build": "webpack",
+        "test": "./node_modules/.bin/babel-node tests/run-tests.js"
+    },
+    "dependencies": {
+        "acorn": "^4.0.4",
+        "acorn-jsx": "^3.0.1"
+    },
+    "devDependencies": {
+        "babel-cli": "^6.23.0",
+        "babel-core": "^6.21.0",
+        "babel-eslint": "^7.1.1",
+        "babel-loader": "^6.3.2",
+        "babel-preset-es2015": "^6.18.0",
+        "babel-preset-stage-0": "^6.16.0",
+        "eslint": "^3.16.1",
+        "eslint-config-recommended": "^1.5.0",
+        "eslint-plugin-babel": "^4.1.0",
+        "eslint-plugin-import": "^2.2.0",
+        "tape": "^4.6.3",
+        "webpack": "^2.2.1"
+    },
+    "babel": {
+        "presets": [
+            "es2015",
+            "stage-0"
+        ]
+    },
+    "eslintConfig": {
+        "extends": "recommended/esnext/style-guide",
+        "allowInlineConfig": true,
+        "env": {
+            "node": true,
+            "es6": true
+        },
+        "parserOptions": {
+            "ecmaVersion": 6,
+            "ecmaFeatures": {
+                "experimentalObjectRestSpread": true
+            },
+            "sourceType": "module"
+        }
+    }
+}
