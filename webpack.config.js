@@ -23,6 +23,7 @@ module.exports = {
 		filename: '[name].js',
 		libraryTarget: 'commonjs2',
 	},
+	target: 'node',
 	externals,
 	module: {
 		rules: [

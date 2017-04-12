@@ -460,6 +460,8 @@ exports.default = function (acorn) {
 	return acorn;
 };
 
+module.exports = exports['default'];
+
 /***/ })
 
 /******/ });

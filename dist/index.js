@@ -105,6 +105,7 @@ var acorn = __webpack_require__(1); /**
                                */
 
 exports.default = (0, _inject2.default)(acorn);
+module.exports = exports['default'];
 
 /***/ })
 /******/ ]);

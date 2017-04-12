@@ -4,11 +4,20 @@
     "description": "acorn extension for Salesforce js dialect with merge fields",
     "main": "dist/index.js",
     "author": "Salesforce",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/forcedotcom/acorn-visualforce.git"
+    },
+    "engines": {
+        "node": ">=0.4.0"
+    },
     "license": "BSD-3-Clause",
     "keywords": [
         "salesforce",
         "visualforce",
-        "vfel"
+        "vfel",
+        "javascript",
+        "acorn"
     ],
     "scripts": {
         "build": "webpack",
@@ -23,6 +32,7 @@
         "babel-core": "^6.21.0",
         "babel-eslint": "^7.1.1",
         "babel-loader": "^6.3.2",
+        "babel-plugin-add-module-exports": "^0.2.1",
         "babel-preset-es2015": "^6.18.0",
         "babel-preset-stage-0": "^6.16.0",
         "eslint": "^3.16.1",
@@ -36,6 +46,9 @@
         "presets": [
             "es2015",
             "stage-0"
+        ],
+        "plugins": [
+           "add-module-exports"
         ]
     },
     "eslintConfig": {
