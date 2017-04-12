@@ -78,4 +78,4 @@ Produces:
 
 ## License
 
-This plugin is issued under the [MIT license](./LICENSE).
+This plugin is issued under the [BSD-3-Clause](./LICENSE) license.
