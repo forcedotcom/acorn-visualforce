@@ -89,6 +89,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
  */
 
 module.exports = function (acorn) {
+	var forceInject = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 	var tt = acorn.tokTypes,
 	    tc = acorn.tokContexts,
 	    TokContext = acorn.TokContext,
@@ -512,6 +513,14 @@ module.exports = function (acorn) {
 	};
 
 	Object.assign(acorn.plugins, vfelPlugin);
+
+	// override plugin settings
+	if (forceInject) {
+		var originalLoadPlugins = acorn.Parser.prototype.loadPlugins;
+		acorn.Parser.prototype.loadPlugins = function loadPlugins(pluginConfigs) {
+			originalLoadPlugins.call(this, Object.assign(pluginConfigs, { vfel: true }));
+		};
+	}
 
 	return acorn;
 };

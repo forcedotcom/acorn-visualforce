@@ -15,7 +15,7 @@ const acorn = require('@salesforce/acorn-visualforce');
 Or you can use `inject.js` for injecting plugin into your own version of Acorn like following:
 
 ```javascript
-const acorn = require('@salesforce/acorn-visualforce/inject')(require('./custom-acorn'));
+const acorn = require('@salesforce/acorn-visualforce/dist/inject')(require('./custom-acorn'));
 ```
 
 Then, use `plugins` option whenever you need to support VisualForce merge fields while parsing:
@@ -74,6 +74,14 @@ Produces:
     }],
     "sourceType": "script"
 }
+```
+
+The injector function also supports an optional second parameter that allows to force-inject the plugin, so that there is no need to specify the plugins options to parse or tokenize functions. This is useful for monkey-patching other parser wrappers such as `espree` that force their own plugin options.
+
+```javascript
+const acorn = require('@salesforce/acorn-visualforce/dist/inject')(require('./custom-acorn'), true);
+const code = 'var foo = {! JSENCODE(someApexVariable) };'
+const ast = acorn.parse(code);
 ```
 
 ## License

@@ -5,7 +5,7 @@
  * or https://opensource.org/licenses/BSD-3-Clause
  */
 
-module.exports = function (acorn) {
+module.exports = function (acorn, forceInject = false) {
 	const { tokTypes: tt, tokContexts: tc, TokContext, TokenType } = acorn
 
   // new tokens and contexts
@@ -435,6 +435,14 @@ module.exports = function (acorn) {
 	}
 
 	Object.assign(acorn.plugins, vfelPlugin)
+
+	// override plugin settings
+	if (forceInject) {
+		const originalLoadPlugins = acorn.Parser.prototype.loadPlugins
+		acorn.Parser.prototype.loadPlugins = function loadPlugins (pluginConfigs) {
+			originalLoadPlugins.call(this, Object.assign(pluginConfigs, { vfel: true }))
+		}
+	}
 
 	return acorn
 }

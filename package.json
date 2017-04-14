@@ -1,6 +1,6 @@
 {
   "name": "@salesforce/acorn-visualforce",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "acorn extension for Salesforce js dialect with merge fields",
   "main": "dist/index.js",
   "author": "Salesforce",
@@ -22,14 +22,13 @@
   "scripts": {
     "prepublish": "yarn run build && yarn run test",
     "build": "webpack",
-    "test": "babel-node tests/run-tests.js"
+    "test": "node tests/run-tests.js"
   },
   "dependencies": {
     "acorn": "^4.0.4",
     "acorn-jsx": "^3.0.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.23.0",
     "babel-core": "^6.21.0",
     "babel-eslint": "^7.1.1",
     "babel-loader": "^6.3.2",
