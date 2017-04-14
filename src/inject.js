@@ -5,7 +5,7 @@
  * or https://opensource.org/licenses/BSD-3-Clause
  */
 
-export default function (acorn) {
+module.exports = function (acorn) {
 	const { tokTypes: tt, tokContexts: tc, TokContext, TokenType } = acorn
 
   // new tokens and contexts

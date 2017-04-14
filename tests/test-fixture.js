@@ -5,7 +5,7 @@
  * or https://opensource.org/licenses/BSD-3-Clause
  */
 
-export default {
+module.exports = {
     // comments in Merge fields
 	'{! /* comment */ foo }': {
 		type: 'Program',

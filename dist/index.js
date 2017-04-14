@@ -86,25 +86,17 @@ module.exports = require("acorn");
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+/**
+ * @author Marat Vyshegorodtsev
+ * @license BSD-3-Clause
+ * For full license text, see LICENSE file in the repo root
+ * or https://opensource.org/licenses/BSD-3-Clause
+ */
 
-var _inject = __webpack_require__(0);
+var acorn = __webpack_require__(1);
+var acornInjector = __webpack_require__(0);
 
-var _inject2 = _interopRequireDefault(_inject);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// acorn uses rollup that is not compatible with webpack import
-var acorn = __webpack_require__(1); /**
-                               * @author Marat Vyshegorodtsev
-                               * @license BSD-3-Clause
-                               * For full license text, see LICENSE file in the repo root
-                               * or https://opensource.org/licenses/BSD-3-Clause
-                               */
-
-exports.default = (0, _inject2.default)(acorn);
+module.exports = acornInjector(acorn);
 
 /***/ })
 /******/ ]);

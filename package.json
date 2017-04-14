@@ -1,6 +1,6 @@
 {
   "name": "@salesforce/acorn-visualforce",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "acorn extension for Salesforce js dialect with merge fields",
   "main": "dist/index.js",
   "author": "Salesforce",
@@ -55,6 +55,7 @@
       "node": true,
       "es6": true
     },
+    "plugins": [ "import" ],
     "parserOptions": {
       "ecmaVersion": 6,
       "ecmaFeatures": {

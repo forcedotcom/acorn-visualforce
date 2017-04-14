@@ -4,12 +4,12 @@
  * For full license text, see LICENSE file in the repo root
  * or https://opensource.org/licenses/BSD-3-Clause
  */
-import acorn from '../dist'
-import ecmaRegressionFixture from './ecma-regression-fixture'
-import fixture from './test-fixture'
-import test from 'tape'
-
+const test = require('tape')
 const originalAcorn = require('acorn')
+const acorn = require('../dist')
+const fixture = require('./test-fixture')
+const ecmaRegressionFixture = require('./ecma-regression-fixture')
+
 
 test('Parsing different VFEL expressions to AST', assert => {
 	const tests = Object.keys(fixture)

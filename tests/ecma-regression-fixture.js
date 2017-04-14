@@ -6,7 +6,7 @@
  */
 // TODO port ES6, ES7 tests from acorn
 
-export default [
+module.exports = [
 	'this\n',
 	'null\n',
 	'\n    42\n\n',
