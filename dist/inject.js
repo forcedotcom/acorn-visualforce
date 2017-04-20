@@ -97,7 +97,7 @@ module.exports = function (acorn) {
 
 	// new tokens and contexts
 
-	tc.vfel_expr = new TokContext('{!...}', true, true);
+	tc.vfel_expr = new TokContext('{!...}', true, false); // isExpr = true, preserveSpace = false
 	tt.vfelExpressionStart = new TokenType('vfelExpressionStart', {
 		beforeExpr: true,
 		startsExpr: true
@@ -289,6 +289,9 @@ module.exports = function (acorn) {
 			// not a keyword, return as identifier
 			if (!isKeyword) this.finishToken(tt.name, producedWord);
 		},
+
+
+		// There is only a minor difference between original skipSpace and vfel_skipSpace — there are no line comments in VFEL
 		vfel_skipSpace: function vfel_skipSpace() {
 			var isWhitespace = true;
 			while (isWhitespace && this.pos < this.input.length) {
@@ -331,14 +334,14 @@ module.exports = function (acorn) {
 		vfel_parseMergeField: function vfel_parseMergeField() {
 			var startPos = this.start; // remembering where VFEL expression started
 			var startLoc = this.startLoc;
-			this.next(); // consuming '{!'
+			this.expect(tt.vfelExpressionStart); // consuming '{!'
 			this.inMergeField = true;
 			return this.vfel_parseMergeFieldAt(startPos, startLoc);
 		},
 		vfel_parseMergeFieldAt: function vfel_parseMergeFieldAt(startPos, startLoc) {
 			var node = this.startNodeAt(startPos, startLoc);
 			node.value = this.parseMaybeAssign();
-			this.next(); // consuming vfelExpressionEnd '}'
+			this.expect(tt.vfelExpressionEnd); // consuming vfelExpressionEnd '}'
 			this.inMergeField = false;
 			return this.finishNode(node, 'VFELExpression');
 		},

@@ -9,8 +9,10 @@ const path = require('path')
 const config = require('./package.json')
 
 
-const externals = Object.keys(config.dependencies).reduce((result, dep) => Object.assign(result, { [dep]: `commonjs2 ${ dep }` }), {})
-externals['./inject'] = 'commonjs2 ./inject'
+const externals = {
+	acorn: 'commonjs2 acorn',
+	'./inject': 'commonjs2 ./inject',
+}
 
 module.exports = {
 	context: path.resolve(__dirname, 'src'),
