@@ -7,9 +7,9 @@ module.exports =
 /******/ 	function __webpack_require__(moduleId) {
 /******/
 /******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
+/******/ 		if(installedModules[moduleId]) {
 /******/ 			return installedModules[moduleId].exports;
-/******/
+/******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
@@ -77,8 +77,6 @@ module.exports =
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 /**
@@ -121,7 +119,7 @@ module.exports = function (acorn) {
 		47: tt.slash, // '/'
 		91: tt.bracketL, // '['
 		93: tt.bracketR, // ']'
-		94: _extends({}, tt.bitwiseXOR, {
+		94: Object.assign({}, tt.bitwiseXOR, {
 			binop: 11
 		}), // '^' is a left-associative '**' in VFEL
 		125: tt.vfelExpressionEnd };
@@ -157,7 +155,7 @@ module.exports = function (acorn) {
 	};
 
 	var vfelParser = {
-		vfel_readToken: function vfel_readToken() {
+		vfel_readToken() {
 			// Rewriting original readToken, since vfel tokens are a subset of JS tokens
 			this.vfel_skipSpace();
 
@@ -192,10 +190,11 @@ module.exports = function (acorn) {
 				// Double quoted and single quoted strings
 				if (character === 34 || character === 39) return this.vfel_readString(character);
 
-				this.raise(this.pos, 'Unexpected character in VFEL expression \'' + String.fromCharCode(character) + '\'');
+				this.raise(this.pos, `Unexpected character in VFEL expression '${String.fromCharCode(character)}'`);
 			}
 		},
-		vfel_readString: function vfel_readString(quoteType) {
+
+		vfel_readString(quoteType) {
 			var out = '';
 			this.pos += 1; // consuming opening quote
 			var chunkStart = this.pos;
@@ -221,7 +220,8 @@ module.exports = function (acorn) {
 			this.pos += 1; // consuming closing quote
 			return this.finishToken(tt.string, out);
 		},
-		vfel_readEscapedChar: function vfel_readEscapedChar() {
+
+		vfel_readEscapedChar() {
 			this.pos += 1; // consuming '\'
 			var nextCharacter = this.input.charCodeAt(this.pos);
 			switch (nextCharacter) {
@@ -233,13 +233,14 @@ module.exports = function (acorn) {
 					this.pos += 1;return '"'; // but, \" renders as "
 				// \n, \t, \r are allowed and rendered literally
 				case 110:case 114:case 116:
-					this.pos += 1;return '\\' + String.fromCharCode(nextCharacter);
+					this.pos += 1;return `\\${String.fromCharCode(nextCharacter)}`;
 				// any other escape sequence produces "Syntax Error in VFEL"
 				default:
 					this.raiseRecoverable('Escape sequences other than \\t, \\r and \\n are not allowed in VFEL');return '';
 			}
 		},
-		vfel_readNumber: function vfel_readNumber() {
+
+		vfel_readNumber() {
 			var start = this.pos;
 			var isFloat = false;
 
@@ -254,7 +255,8 @@ module.exports = function (acorn) {
 			var result = this.input.slice(start, this.pos); // consuming the whole number
 			return this.finishToken(tt.num, isFloat ? parseFloat(result) : parseInt(result, 10));
 		},
-		vfel_consumeDigitsSlice: function vfel_consumeDigitsSlice() {
+
+		vfel_consumeDigitsSlice() {
 			var start = this.pos;
 			var character = void 0;
 			do {
@@ -263,7 +265,8 @@ module.exports = function (acorn) {
 			} while (/[0-9]/.test(character));
 			return this.input.slice(start, this.pos);
 		},
-		vfel_readWord: function vfel_readWord() {
+
+		vfel_readWord() {
 			var _this = this;
 
 			// null, false, true, identifier
@@ -290,9 +293,8 @@ module.exports = function (acorn) {
 			if (!isKeyword) this.finishToken(tt.name, producedWord);
 		},
 
-
 		// There is only a minor difference between original skipSpace and vfel_skipSpace — there are no line comments in VFEL
-		vfel_skipSpace: function vfel_skipSpace() {
+		vfel_skipSpace() {
 			var isWhitespace = true;
 			while (isWhitespace && this.pos < this.input.length) {
 				var ch = this.input.charCodeAt(this.pos);
@@ -331,21 +333,24 @@ module.exports = function (acorn) {
 				}
 			}
 		},
-		vfel_parseMergeField: function vfel_parseMergeField() {
+
+		vfel_parseMergeField() {
 			var startPos = this.start; // remembering where VFEL expression started
 			var startLoc = this.startLoc;
 			this.expect(tt.vfelExpressionStart); // consuming '{!'
 			this.inMergeField = true;
 			return this.vfel_parseMergeFieldAt(startPos, startLoc);
 		},
-		vfel_parseMergeFieldAt: function vfel_parseMergeFieldAt(startPos, startLoc) {
+
+		vfel_parseMergeFieldAt(startPos, startLoc) {
 			var node = this.startNodeAt(startPos, startLoc);
 			node.value = this.parseMaybeAssign();
 			this.expect(tt.vfelExpressionEnd); // consuming vfelExpressionEnd '}'
 			this.inMergeField = false;
 			return this.finishNode(node, 'VFELExpression');
 		},
-		vfel_parseMapExpressionList: function vfel_parseMapExpressionList() {
+
+		vfel_parseMapExpressionList() {
 			var elements = []; // this.parseExprList(tt.bracketR, true, true, refDestructuringErrors);
 			var first = true;
 			while (!this.eat(tt.bracketR)) {
@@ -361,15 +366,18 @@ module.exports = function (acorn) {
 			}
 			return elements;
 		},
-		vfel_isIdentifierChar: function vfel_isIdentifierChar(charCode) {
+
+		vfel_isIdentifierChar(charCode) {
 			return (/[a-zA-Z0-9$_.#:\u0080-\ufffe]/.test(String.fromCharCode(charCode))
 			);
 		},
-		vfel_isIdentifierStartChar: function vfel_isIdentifierStartChar(charCode) {
+
+		vfel_isIdentifierStartChar(charCode) {
 			return (/[a-zA-Z$_]/.test(String.fromCharCode(charCode))
 			);
 		},
-		readVfelExpression: function readVfelExpression() {
+
+		readVfelExpression() {
 			return acorn.parseExpressionAt(this.input, this.pos, this.options);
 			// const expressions = []
 			// for (let offset = stringValue.indexOf('{!'); offset !== -1; offset = stringValue.indexOf('{!', offset + 1))
@@ -377,12 +385,13 @@ module.exports = function (acorn) {
 			//
 			// return expressions
 		}
+
 	};
 
 	Object.assign(acorn.Parser.prototype, vfelParser);
 
 	var vfelPlugin = {
-		vfel: function vfel(instance) {
+		vfel(instance) {
 			instance.extend('parseExprAtom', function (inner) {
 				return function vfelExtendedParseExprAtom(refDestructuringErrors) {
 					if (this.type === tt.vfelExpressionStart) return this.vfel_parseMergeField();
@@ -505,8 +514,8 @@ module.exports = function (acorn) {
 					// and then rename native ES nodes to VFEL nodes
 					if (this.inMergeField) {
 						var allowedNodeTypes = new Set(['UnaryExpression', 'BinaryExpression', 'LogicalExpression', 'MemberExpression', 'CallExpression', 'Literal', 'ParenthesizedExpression', 'Identifier', 'MapEntry', 'MapExpression']);
-						if (allowedNodeTypes.has(type)) return inner.call(this, node, 'VFEL' + type);
-						this.raise(node.start, 'Unexpected node type ' + type + ' in VFEL context');
+						if (allowedNodeTypes.has(type)) return inner.call(this, node, `VFEL${type}`);
+						this.raise(node.start, `Unexpected node type ${type} in VFEL context`);
 					}
 
 					return inner.call(this, node, type);
