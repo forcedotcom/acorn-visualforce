@@ -1,5 +1,8 @@
 # Acorn-VisualForce
 
+[![Build Status](https://travis-ci.org/forcedotcom/acorn-visualforce.svg?branch=master)](https://travis-ci.org/forcedotcom/acorn-visualforce)
+[![NPM version](https://img.shields.io/npm/v/@salesforce/acorn-visualforce.svg)](https://www.npmjs.com/package/@salesforce/acorn-visualforce)
+
 This is plugin for [Acorn](http://marijnhaverbeke.nl/acorn/) - a tiny, fast JavaScript parser, written completely in JavaScript.
 
 It was created as an experimental parser for VisualForce inline JS.
