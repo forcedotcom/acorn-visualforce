@@ -6,7 +6,9 @@
  */
 
 module.exports = function (acorn, forceInject = false) {
-	const { tokTypes: tt, tokContexts: tc, TokContext, TokenType } = acorn
+	const { tokTypes: tt, tokContexts: tc, TokContext, TokenType, Token } = acorn
+
+	console.log('Token: ', Token)
 
   // new tokens and contexts
 	tc.vfel_expr = new TokContext('{!...}', true, false) // isExpr = true, preserveSpace = false
@@ -237,19 +239,28 @@ module.exports = function (acorn, forceInject = false) {
 			}
 		},
 
-		vfel_parseMergeField () {
-			const startPos = this.start // remembering where VFEL expression started
-			const startLoc = this.startLoc
-			this.expect(tt.vfelExpressionStart) // consuming '{!'
-			this.inMergeField = true
-			return this.vfel_parseMergeFieldAt(startPos, startLoc)
+		vfel_parseExpression () {
+			const node = this.vfel_parseExpressionOnly()
+			// moving the parser further
+			this.nextToken()
+			return node
 		},
 
-		vfel_parseMergeFieldAt (startPos, startLoc) {
-			const node = this.startNodeAt(startPos, startLoc)
+		// this exists for parsing merge fields in strings without trying to tokenize the remainder of the string
+		vfel_parseExpressionOnly () {
+			const node = this.startNodeAt(this.start, this.startLoc)
+			this.expect(tt.vfelExpressionStart) // consuming '{!'
+			this.inMergeField = true
 			node.value = this.parseMaybeAssign()
-			this.expect(tt.vfelExpressionEnd) // consuming vfelExpressionEnd '}'
 			this.inMergeField = false
+			// consuming '}' without continuing tokenization, basically this.expect(tt.vfelExpressionEnd)
+			// but without this.nextToken() in the end
+			if (this.type !== tt.vfelExpressionEnd) this.raiseRecoverable('Unterminated VFEL expression')
+			if (this.options.onToken) this.options.onToken(new Token(this))
+			this.lastTokEnd = this.end
+			this.lastTokStart = this.start
+			this.lastTokEndLoc = this.endLoc
+			this.lastTokStartLoc = this.startLoc
 			return this.finishNode(node, 'VFELExpression')
 		},
 
@@ -280,13 +291,10 @@ module.exports = function (acorn, forceInject = false) {
 			return /[a-zA-Z$_]/.test(String.fromCharCode(charCode))
 		},
 
-		readVfelExpression () {
-			return acorn.parseExpressionAt(this.input, this.pos, this.options)
-			// const expressions = []
-			// for (let offset = stringValue.indexOf('{!'); offset !== -1; offset = stringValue.indexOf('{!', offset + 1))
-			// 	expressions.push(acorn.parseExpressionAt(stringValue, offset, this.options))
-      //
-			// return expressions
+		extractVfelExpression () {
+			const p = new acorn.Parser(this.options, this.input, this.pos)
+			p.nextToken()
+			return p.vfel_parseExpressionOnly()
 		},
 
 	}
@@ -298,7 +306,7 @@ module.exports = function (acorn, forceInject = false) {
 		vfel (instance) {
 			instance.extend('parseExprAtom', inner => function vfelExtendedParseExprAtom (refDestructuringErrors) {
 				if (this.type === tt.vfelExpressionStart)
-					return this.vfel_parseMergeField()
+					return this.vfel_parseExpression()
 
 
 				if (this.curContext() === tc.vfel_expr)
@@ -375,7 +383,7 @@ module.exports = function (acorn, forceInject = false) {
 
           // Found '{!', read VFEL expression and start over
 					if (ch === 123 && this.input.charCodeAt(this.pos + 1) === 33) {
-						const vfelExpr = this.readVfelExpression()
+						const vfelExpr = this.extractVfelExpression()
 
 						if (vfelExpr && vfelExpr.end) {
               // parsed a vfelExpression inside string, moving further

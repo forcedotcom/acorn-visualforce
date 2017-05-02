@@ -16,7 +16,9 @@ test('Parsing different VFEL expressions to AST', assert => {
 	assert.plan(tests.length)
 	tests.forEach(codeSnippet => {
 		const ast = acorn.parse(codeSnippet, { plugins: { vfel: true } })
-		assert.deepEqual(ast, fixture[codeSnippet], `Parsing '${ codeSnippet }'`)
+		const result = assert.deepEqual(ast, fixture[codeSnippet], `Parsing '${ codeSnippet }'`)
+		if (!result) console.log(JSON.stringify(ast, 4, 4))
+
 	})
 })
 
@@ -28,5 +30,3 @@ test('Original acorn tests to check for regressions', assert => {
 		assert.deepEqual(vfelAST, originalAST, `Parsing '${ codeSnippet }'`)
 	})
 })
-
-// console.log(JSON.stringify(acorn.parseExpressionAt('\'foo{! BAR() }baz\'', 0, { plugins: { vfel: true }, locations: true, ranges: true}), 4, 4));

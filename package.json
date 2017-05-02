@@ -1,6 +1,6 @@
 {
   "name": "@salesforce/acorn-visualforce",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "acorn extension for Salesforce js dialect with merge fields",
   "main": "dist/index.js",
   "author": "Salesforce",

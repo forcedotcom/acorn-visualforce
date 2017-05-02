@@ -460,4 +460,76 @@ module.exports = {
 		],
 		sourceType: 'script',
 	},
+	"var apexVariable =  JSON.parse('{!apexVariable}')": {
+		type: 'Program',
+		start: 0,
+		end: 49,
+		body: [
+			{
+				type: 'VariableDeclaration',
+				start: 0,
+				end: 49,
+				declarations: [
+					{
+						type: 'VariableDeclarator',
+						start: 4,
+						end: 49,
+						id: {
+							type: 'Identifier',
+							start: 4,
+							end: 16,
+							name: 'apexVariable',
+						},
+						init: {
+							type: 'CallExpression',
+							start: 20,
+							end: 49,
+							callee: {
+								type: 'MemberExpression',
+								start: 20,
+								end: 30,
+								object: {
+									type: 'Identifier',
+									start: 20,
+									end: 24,
+									name: 'JSON',
+								},
+								property: {
+									type: 'Identifier',
+									start: 25,
+									end: 30,
+									name: 'parse',
+								},
+								computed: false,
+							},
+							arguments: [
+								{
+									type: 'Literal',
+									start: 31,
+									end: 48,
+									value: '{!apexVariable}',
+									raw: "'{!apexVariable}'",
+									vfelExpressions: [
+										{
+											type: 'VFELExpression',
+											start: 32,
+											end: 47,
+											value: {
+												type: 'VFELIdentifier',
+												start: 34,
+												end: 46,
+												name: 'apexVariable',
+											},
+										},
+									],
+								},
+							],
+						},
+					},
+				],
+				kind: 'var',
+			},
+		],
+		sourceType: 'script',
+	},
 }
