@@ -8,8 +8,6 @@
 module.exports = function (acorn, forceInject = false) {
 	const { tokTypes: tt, tokContexts: tc, TokContext, TokenType, Token } = acorn
 
-	console.log('Token: ', Token)
-
   // new tokens and contexts
 	tc.vfel_expr = new TokContext('{!...}', true, false) // isExpr = true, preserveSpace = false
 	tt.vfelExpressionStart = new TokenType('vfelExpressionStart', {
