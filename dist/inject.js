@@ -627,13 +627,10 @@ module.exports = function (acorn) {
 	if (forceInject) {
 		var originalLoadPlugins = acorn.Parser.prototype.loadPlugins;
 		acorn.Parser.prototype.loadPlugins = function loadPlugins(pluginConfigs) {
-			// load all other plugins first, make sure we don't load vfel
-			var originalPluginConfigs = Object.assign({}, pluginConfigs);
-			delete originalPluginConfigs.vfel;
-			originalLoadPlugins.call(this, originalPluginConfigs);
-
-			// load VFEL separately last so all overrides are at the top level
-			originalLoadPlugins.call(this, { vfel: true });
+			if (pluginConfigs.vfel) // vfel is specified in plugin settings, respecting them
+				originalLoadPlugins.call(this, pluginConfigs);else originalLoadPlugins.call(this, Object.assign({}, pluginConfigs, {
+				vfel: true
+			}));
 		};
 	}
 
