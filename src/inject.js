@@ -5,6 +5,8 @@
  * or https://opensource.org/licenses/BSD-3-Clause
  */
 
+const { getQualifiedJSXName } = require('./utils')
+
 module.exports = function (acorn, forceInject = false) {
 	const { tokTypes: tt, tokContexts: tc, TokContext, TokenType, Token } = acorn
 
@@ -15,6 +17,34 @@ module.exports = function (acorn, forceInject = false) {
 		startsExpr: true,
 	})
 	tt.vfelExpressionEnd = new TokenType('vfelExpressionEnd')
+
+	tt.vfelExpressionStart.updateContext = function vfelExprStartUpdateContext () {
+		this.context.push(tc.vfel_expr) // Now everything is a VFEL expression tokens
+	}
+	tt.vfelExpressionEnd.updateContext = function vfelExprEndUpdateContext () {
+		this.context.pop()
+	}
+
+	// override JSX behavior to support <apex:*> tags
+	if (tt.jsxTagEnd && typeof tt.jsxTagEnd.updateContext === 'function')
+		tt.jsxTagEnd.updateContext = function vfelJSXTagEndUpdateContext (prevType) {
+			const out = this.context.pop() // popping out of j_oTag or j_cTag context
+
+			if (out === tc.j_oTag)
+				if (prevType === tt.slash) // self-closing tag
+					this.context.pop() // popping out of j_expr started by this tag
+				else
+					this.context.push(tc.b_stat) // after opening tag everything is just another code block
+
+
+			if (out === tc.j_cTag) {
+				this.context.pop() // popping out of b_stat started by the corresponding opening tag
+				this.context.pop() // popping out of j_expr started by the corresponding opening tag
+			}
+
+			this.exprAllowed = true
+		}
+
 
   /* eslint-disable no-underscore-dangle */
   /* Underscore dangle keywords are used by acorn */
@@ -57,14 +87,6 @@ module.exports = function (acorn, forceInject = false) {
     // note, single '=' is not tt.eq, since VFEL doesn't allow assignments
 		62: next => next === 61 ? [ tt.relational, 2 ] : [ tt.relational, 1 ], // '>=' and '>'
 		124: next => next === 124 ? [ tt.logicalOR, 2 ] : null,     // '||', '|' is not allowed
-	}
-
-
-	tt.vfelExpressionStart.updateContext = function vfelExprStartUpdateContext () {
-		this.context.push(tc.vfel_expr) // Now everything is a VFEL expression tokens
-	}
-	tt.vfelExpressionEnd.updateContext = function vfelExprEndUpdateContext () {
-		this.context.pop()
 	}
 
 	const vfelParser = {
@@ -295,6 +317,43 @@ module.exports = function (acorn, forceInject = false) {
 			return p.vfel_parseExpressionOnly()
 		},
 
+		jsx_parseElementAt (startPos, startLoc) {
+	    const node = this.startNodeAt(startPos, startLoc)
+	    const children = []
+	    const openingElement = this.jsx_parseOpeningElementAt(startPos, startLoc)
+	    let closingElement = null
+
+	    if (!openingElement.selfClosing) {
+	      contents: for (;;)
+	        switch (this.type) {
+	        case tt.jsxTagStart:
+	          startPos = this.start; startLoc = this.startLoc
+	          this.next()
+	          if (this.eat(tt.slash)) {
+	            closingElement = this.jsx_parseClosingElementAt(startPos, startLoc)
+	            break contents
+	          }
+	          children.push(this.jsx_parseElementAt(startPos, startLoc))
+	          break
+
+	        default:
+	          children.push(this.parseStatement(true)) // declaration = true
+	        }
+
+	      if (getQualifiedJSXName(closingElement.name) !== getQualifiedJSXName(openingElement.name))
+	        this.raiseRecoverable(
+	          closingElement.start,
+	          'Expected corresponding closing tag for <' + getQualifiedJSXName(openingElement.name) + '>')
+
+	    }
+
+	    node.openingElement = openingElement
+	    node.closingElement = closingElement
+	    node.children = children
+
+	    return this.finishNode(node, 'JSXElement')
+	  },
+
 	}
 
 	Object.assign(acorn.Parser.prototype, vfelParser)
@@ -335,15 +394,25 @@ module.exports = function (acorn, forceInject = false) {
 			})
 
 			instance.extend('readToken', inner => function vfelExtendedReadToken (code) {
-        // we are parsing a VFEL expression at the moment, use our own tokenizer
-				if (this.curContext() === tc.vfel_expr)
+				const curContext = this.curContext()
+				const nextCharCode = this.input.charCodeAt(this.pos + 1)
+
+
+				// we are parsing a VFEL expression at the moment, use our own tokenizer
+				if (curContext === tc.vfel_expr)
 					return this.vfel_readToken()
 
+				if (tc.j_oTag && curContext === tc.j_oTag) {
+					if (code === 123) // {
+						this.raise(this.pos, "Unexpected '{' inside of a tag (apex tags do not support JSX expressions)")
+
+					if (code === 34 || code === 39)  // " and '
+						return this.readString(code) // reverting it back from jsx_readString
+				}
 
         // if we read '{!' in Javascript context, then
         // we switch context to VFEL, otherwise it is still JS
-				const next = this.input.charCodeAt(this.pos + 1)
-				if (code === 123 && next === 33) {
+				if (code === 123 && nextCharCode === 33) {
           // got '{!', it means it is a VFEL expression start, taking over
 					this.pos += 2
 					return this.finishToken(tt.vfelExpressionStart)
@@ -354,8 +423,10 @@ module.exports = function (acorn, forceInject = false) {
 			})
 
 			instance.extend('updateContext', inner => function vfelExtendedUpdateContext (prevType) {
-        // disallow switching to other contexts inside of vfel_expr context
-				if (this.curContext() === tc.vfel_expr && this.type !== tt.vfelExpressionEnd) return
+				const curContext = this.curContext()
+				// disallow switching to other contexts inside of vfel_expr context
+				if (curContext === tc.vfel_expr && this.type !== tt.vfelExpressionEnd) return
+
 				inner.call(this, prevType)
 			})
 
@@ -366,7 +437,7 @@ module.exports = function (acorn, forceInject = false) {
 				for (;;) {
 					if (this.pos >= this.input.length) this.raise(this.start, 'Unterminated string constant')
 					const ch = this.input.charCodeAt(this.pos)
-					if (ch === 10 || ch === 13 || ch === 0x2028 || ch === 0x2029) this.raise(this.start, 'Unterminated string constant')
+					if (ch === 10 || ch === 13 || ch === 0x2028 || ch === 0x2029) this.raise(this.start, 'Unterminated string constant: new line found')
 
           // Found closing quote, done reading string
 					if (ch === quote) break
@@ -447,7 +518,13 @@ module.exports = function (acorn, forceInject = false) {
 	if (forceInject) {
 		const originalLoadPlugins = acorn.Parser.prototype.loadPlugins
 		acorn.Parser.prototype.loadPlugins = function loadPlugins (pluginConfigs) {
-			originalLoadPlugins.call(this, Object.assign(pluginConfigs, { vfel: true }))
+			// load all other plugins first, make sure we don't load vfel
+			const originalPluginConfigs = { ...pluginConfigs }
+			delete originalPluginConfigs.vfel
+			originalLoadPlugins.call(this, originalPluginConfigs)
+
+			// load VFEL separately last so all overrides are at the top level
+			originalLoadPlugins.call(this, { vfel: true })
 		}
 	}
 

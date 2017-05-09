@@ -11,6 +11,7 @@ const config = require('./package.json')
 
 const externals = {
 	acorn: 'commonjs2 acorn',
+	'acorn-jsx/inject': 'commonjs2 acorn-jsx/inject',
 	'./inject': 'commonjs2 ./inject',
 }
 

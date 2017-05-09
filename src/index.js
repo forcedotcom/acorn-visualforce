@@ -6,6 +6,7 @@
  */
 
 const acorn = require('acorn')
-const acornInjector = require('./inject')
+const acornJSXInjector = require('acorn-jsx/inject')
+const acornVFELInjector = require('./inject')
 
-module.exports = acornInjector(acorn)
+module.exports = acornVFELInjector(acornJSXInjector(acorn), true)

@@ -377,11 +377,14 @@ module.exports = [
 	'const eval = 42, arguments = 42',
 	'const x = 14, y = 3, z = 1977',
 	'for(const x = 0;;);',
-	'<!--\n;',
+
+	// TODO check if JSX actually works with this
+	// '<!-- HTML comment',
+	// '<!--\n;',
+	// ';\n--> HTML comment',
+
 	"\nfunction plop() {\n'use strict';\n/* Comment */\n}",
 	'// line comment',
-	'<!-- HTML comment',
-	';\n--> HTML comment',
 	'var x = (1 + 2)',
 	"function f(f) { 'use strict'; }",
 	// '#!/usr/bin/node\n;',

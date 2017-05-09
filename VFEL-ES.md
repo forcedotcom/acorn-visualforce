@@ -24,7 +24,7 @@ VFEL-ES extends the PrimaryExpression, StringLiteral, and TemplateLiteral in the
 
 ```
 PrimaryExpression ::
-    MergeField
+    VFELExpression
 
 TemplateLiteral ::
     VFEL*TemplateHead VFELExpression TemplateSpans*
@@ -74,9 +74,6 @@ SingleStringCharacters ::
 SingleStringCharacters ::
     { [lookahead ≠ ! ]
     SourceCharacter but not one of " or \ or { or LineTerminator
-
-MergeField ::
-    {! VFELExpression }
 
 VFELExpression ::
     VFELPrimaryExpression

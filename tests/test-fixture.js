@@ -532,4 +532,151 @@ module.exports = {
 		],
 		sourceType: 'script',
 	},
+	// Testing <apex:*> tags
+	'<apex:repeat value="{! someArray }" var="entry">\n\tvar foo = {! entry }\n</apex:repeat>': {
+		type: 'Program',
+		start: 0,
+		end: 85,
+		body: [
+			{
+				type: 'ExpressionStatement',
+				start: 0,
+				end: 85,
+				expression: {
+					type: 'JSXElement',
+					start: 0,
+					end: 85,
+					openingElement: {
+						type: 'JSXOpeningElement',
+						start: 0,
+						end: 48,
+						attributes: [
+							{
+								type: 'JSXAttribute',
+								start: 13,
+								end: 35,
+								name: {
+									type: 'JSXIdentifier',
+									start: 13,
+									end: 18,
+									name: 'value',
+								},
+								value: {
+									type: 'Literal',
+									start: 19,
+									end: 35,
+									value: '{! someArray }',
+									raw: '"{! someArray }"',
+									vfelExpressions: [
+										{
+											type: 'VFELExpression',
+											start: 20,
+											end: 34,
+											value: {
+												type: 'VFELIdentifier',
+												start: 23,
+												end: 32,
+												name: 'someArray',
+											},
+										},
+									],
+								},
+							},
+							{
+								type: 'JSXAttribute',
+								start: 36,
+								end: 47,
+								name: {
+									type: 'JSXIdentifier',
+									start: 36,
+									end: 39,
+									name: 'var',
+								},
+								value: {
+									type: 'Literal',
+									start: 40,
+									end: 47,
+									value: 'entry',
+									raw: '"entry"',
+								},
+							},
+						],
+						name: {
+							type: 'JSXNamespacedName',
+							start: 1,
+							end: 12,
+							namespace: {
+								type: 'JSXIdentifier',
+								start: 1,
+								end: 5,
+								name: 'apex',
+							},
+							name: {
+								type: 'JSXIdentifier',
+								start: 6,
+								end: 12,
+								name: 'repeat',
+							},
+						},
+						selfClosing: false,
+					},
+					closingElement: {
+						type: 'JSXClosingElement',
+						start: 71,
+						end: 85,
+						name: {
+							type: 'JSXNamespacedName',
+							start: 73,
+							end: 84,
+							namespace: {
+								type: 'JSXIdentifier',
+								start: 73,
+								end: 77,
+								name: 'apex',
+							},
+							name: {
+								type: 'JSXIdentifier',
+								start: 78,
+								end: 84,
+								name: 'repeat',
+							},
+						},
+					},
+					children: [
+						{
+							type: 'VariableDeclaration',
+							start: 50,
+							end: 70,
+							declarations: [
+								{
+									type: 'VariableDeclarator',
+									start: 54,
+									end: 70,
+									id: {
+										type: 'Identifier',
+										start: 54,
+										end: 57,
+										name: 'foo',
+									},
+									init: {
+										type: 'VFELExpression',
+										start: 60,
+										end: 70,
+										value: {
+											type: 'VFELIdentifier',
+											start: 63,
+											end: 68,
+											name: 'entry',
+										},
+									},
+								},
+							],
+							kind: 'var',
+						},
+					],
+				},
+			},
+		],
+		sourceType: 'script',
+	},
 }

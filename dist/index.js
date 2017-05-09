@@ -64,23 +64,30 @@ module.exports =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ([
-/* 0 */
+/* 0 */,
+/* 1 */
 /***/ (function(module, exports) {
 
 module.exports = require("./inject");
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports) {
 
 module.exports = require("acorn");
 
 /***/ }),
-/* 2 */
+/* 3 */
+/***/ (function(module, exports) {
+
+module.exports = require("acorn-jsx/inject");
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -93,10 +100,11 @@ module.exports = require("acorn");
  * or https://opensource.org/licenses/BSD-3-Clause
  */
 
-var acorn = __webpack_require__(1);
-var acornInjector = __webpack_require__(0);
+var acorn = __webpack_require__(2);
+var acornJSXInjector = __webpack_require__(3);
+var acornVFELInjector = __webpack_require__(1);
 
-module.exports = acornInjector(acorn);
+module.exports = acornVFELInjector(acornJSXInjector(acorn), true);
 
 /***/ })
 /******/ ]);

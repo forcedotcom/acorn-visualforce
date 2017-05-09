@@ -26,7 +26,10 @@ Then, use `plugins` option whenever you need to support VisualForce merge fields
 ```javascript
 const code = 'var foo = {! JSENCODE(someApexVariable) };'
 const ast = acorn.parse(code, {
-  plugins: { vfel: true }
+  plugins: {
+    jsx: true, // make sure that jsx appears BEFORE vfel to work correctly
+    vfel: true,
+  }
 });
 ```
 

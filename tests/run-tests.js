@@ -15,7 +15,12 @@ test('Parsing different VFEL expressions to AST', assert => {
 	const tests = Object.keys(fixture)
 	assert.plan(tests.length)
 	tests.forEach(codeSnippet => {
-		const ast = acorn.parse(codeSnippet, { plugins: { vfel: true } })
+		const ast = acorn.parse(codeSnippet, {
+			plugins: {
+				jsx: true,
+				vfel: true,
+			},
+		})
 		assert.deepEqual(ast, fixture[codeSnippet], `Parsing '${ codeSnippet }'`)
 	})
 })
@@ -23,8 +28,13 @@ test('Parsing different VFEL expressions to AST', assert => {
 test('Original acorn tests to check for regressions', assert => {
 	assert.plan(ecmaRegressionFixture.length)
 	ecmaRegressionFixture.forEach(codeSnippet => {
-		const vfelAST = acorn.parse(codeSnippet, { plugins: { vfel: true } })
 		const originalAST = originalAcorn.parse(codeSnippet)
+		const vfelAST = acorn.parse(codeSnippet, {
+			plugins: {
+				jsx: true,
+				vfel: true,
+			},
+		})
 		assert.deepEqual(vfelAST, originalAST, `Parsing '${ codeSnippet }'`)
 	})
 })
