@@ -17,6 +17,7 @@ module.exports = function (acorn, forceInject = false) {
 		startsExpr: true,
 	})
 	tt.vfelExpressionEnd = new TokenType('vfelExpressionEnd')
+	tt.metastring = new TokenType('metastring', { startsExpr: true }) // a string with additional metadata to be attached to it
 
 	tt.vfelExpressionStart.updateContext = function vfelExprStartUpdateContext () {
 		this.context.push(tc.vfel_expr) // Now everything is a VFEL expression tokens
@@ -90,6 +91,8 @@ module.exports = function (acorn, forceInject = false) {
 	}
 
 	const vfelParser = {
+		// vfelExpressionsInString: [],
+
 		vfel_readToken () {
       // Rewriting original readToken, since vfel tokens are a subset of JS tokens
 			this.vfel_skipSpace()
@@ -389,6 +392,7 @@ module.exports = function (acorn, forceInject = false) {
 							return inner.call(this, refDestructuringErrors)
 					}
 
+				if (this.type === tt.metastring) return this.parseLiteral(this.value)
 
 				return inner.call(this, refDestructuringErrors)
 			})
@@ -475,16 +479,29 @@ module.exports = function (acorn, forceInject = false) {
 
 				out += this.input.slice(chunkStart, this.pos)
 				this.pos += 1 // consuming closing quote
-				return this.finishToken(tt.string, out)
+
+				if (Array.isArray(this.vfelExpressionsInString) && this.vfelExpressionsInString.length > 0)
+					return this.finishToken(tt.metastring, out)
+				 else
+					return this.finishToken(tt.string, out)
 			})
 
 			instance.extend('parseLiteral', inner => function vfelExtendedParseLiteral (value) {
-				const node = inner.call(this, value)
-				if (Array.isArray(this.vfelExpressionsInString) && this.vfelExpressionsInString.length) {
-					node.vfelExpressions = [ ...this.vfelExpressionsInString ]
-					this.vfelExpressionsInString = []
+
+				if (this.type === tt.metastring) {
+					const node = this.startNode()
+					node.value = value
+					node.raw = this.input.slice(this.start, this.end)
+					if (Array.isArray(this.vfelExpressionsInString) && this.vfelExpressionsInString.length) {
+						node.vfelExpressions = [ ...this.vfelExpressionsInString ]
+						this.vfelExpressionsInString = []
+
+					}
+					this.next()
+					return this.finishNode(node, 'MetaString')
 				}
-				return node
+
+				return inner.call(this, value)
 			})
 
 			instance.extend('finishNode', inner => function vfelExtendedFinishNode (node, type) {
@@ -508,7 +525,14 @@ module.exports = function (acorn, forceInject = false) {
 				}
 
 				return inner.call(this, node, type)
+			}),
+
+			instance.extend('jsx_parseAttributeValue', inner => function vfelExtendedJSXParseAttributeValue () {
+				if (this.type === tt.metastring) return this.parseLiteral(this.value)
+				return inner.call(this)
 			})
+
+
 		},
 	}
 

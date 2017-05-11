@@ -377,7 +377,7 @@ module.exports = {
 				start: 0,
 				end: 47,
 				expression: {
-					type: 'Literal',
+					type: 'MetaString',
 					start: 0,
 					end: 47,
 					value: "String with {! 'VFEL'} expression {! 'in'} it",
@@ -424,7 +424,7 @@ module.exports = {
 				start: 0,
 				end: 47,
 				expression: {
-					type: 'Literal',
+					type: 'MetaString',
 					start: 0,
 					end: 47,
 					value: 'String with {! "VFEL"} expression {! "in"} it',
@@ -504,7 +504,7 @@ module.exports = {
 							},
 							arguments: [
 								{
-									type: 'Literal',
+									type: 'MetaString',
 									start: 31,
 									end: 48,
 									value: '{!apexVariable}',
@@ -562,7 +562,7 @@ module.exports = {
 									name: 'value',
 								},
 								value: {
-									type: 'Literal',
+									type: 'MetaString',
 									start: 19,
 									end: 35,
 									value: '{! someArray }',

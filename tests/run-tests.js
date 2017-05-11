@@ -21,6 +21,7 @@ test('Parsing different VFEL expressions to AST', assert => {
 				vfel: true,
 			},
 		})
+		// console.log(JSON.stringify(ast, 4, 4))
 		assert.deepEqual(ast, fixture[codeSnippet], `Parsing '${ codeSnippet }'`)
 	})
 })

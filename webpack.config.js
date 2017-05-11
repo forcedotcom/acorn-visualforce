@@ -29,11 +29,13 @@ module.exports = {
 	target: 'node',
 	externals,
 	module: {
-		rules: [
-			{
-				test: /\.js$/,
-				loader: 'babel-loader',
-			},
-		],
+		rules: [ {
+			test: /\.js$/,
+			loader: 'babel-loader',
+		}, {
+			test: /\.js$/,
+			loader: 'eslint-loader',
+			exclude: /node_modules/,
+		} ],
 	},
 }
