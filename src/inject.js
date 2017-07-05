@@ -504,6 +504,13 @@ module.exports = function (acorn, forceInject = false) {
 				return inner.call(this, value)
 			})
 
+			instance.extend('parsePropertyName', inner => function vfelExtendedParsePropertyName (prop) {
+				if (this.type === tt.metastring)
+					return prop.key = this.parseExprAtom()
+
+				return inner.call(this, prop)
+			})
+
 			instance.extend('finishNode', inner => function vfelExtendedFinishNode (node, type) {
         // Hack: parse VFELExpression as AssignmentExpression
         // and then rename native ES nodes to VFEL nodes
@@ -542,11 +549,12 @@ module.exports = function (acorn, forceInject = false) {
 	if (forceInject) {
 		const originalLoadPlugins = acorn.Parser.prototype.loadPlugins
 		acorn.Parser.prototype.loadPlugins = function loadPlugins (pluginConfigs) {
-			if (pluginConfigs.vfel) // vfel is specified in plugin settings, respecting them
+			if (pluginConfigs.jsx && pluginConfigs.vfel) // jsx and vfel are specified in plugin settings, respecting them
 				originalLoadPlugins.call(this, pluginConfigs)
 			else
 				originalLoadPlugins.call(this, {
 					...pluginConfigs,
+					jsx: true,
 					vfel: true,
 				})
 		}

@@ -619,6 +619,14 @@ module.exports = function (acorn) {
 				};
 			});
 
+			instance.extend('parsePropertyName', function (inner) {
+				return function vfelExtendedParsePropertyName(prop) {
+					if (this.type === tt.metastring) return prop.key = this.parseExprAtom();
+
+					return inner.call(this, prop);
+				};
+			});
+
 			instance.extend('finishNode', function (inner) {
 				return function vfelExtendedFinishNode(node, type) {
 					// Hack: parse VFELExpression as AssignmentExpression
@@ -646,8 +654,9 @@ module.exports = function (acorn) {
 	if (forceInject) {
 		var originalLoadPlugins = acorn.Parser.prototype.loadPlugins;
 		acorn.Parser.prototype.loadPlugins = function loadPlugins(pluginConfigs) {
-			if (pluginConfigs.vfel) // vfel is specified in plugin settings, respecting them
+			if (pluginConfigs.jsx && pluginConfigs.vfel) // jsx and vfel are specified in plugin settings, respecting them
 				originalLoadPlugins.call(this, pluginConfigs);else originalLoadPlugins.call(this, Object.assign({}, pluginConfigs, {
+				jsx: true,
 				vfel: true
 			}));
 		};

@@ -679,4 +679,76 @@ module.exports = {
 		],
 		sourceType: 'script',
 	},
+  // TODO not a merge field
+	// 'try{!false}catch(e){}': {},
+  //
+	'const obj = { "{!field}": 123 }': {
+		type: 'Program',
+		start: 0,
+		end: 31,
+		body: [
+			{
+				type: 'VariableDeclaration',
+				start: 0,
+				end: 31,
+				declarations: [
+					{
+						type: 'VariableDeclarator',
+						start: 6,
+						end: 31,
+						id: {
+							type: 'Identifier',
+							start: 6,
+							end: 9,
+							name: 'obj',
+						},
+						init: {
+							type: 'ObjectExpression',
+							start: 12,
+							end: 31,
+							properties: [
+								{
+									type: 'Property',
+									start: 14,
+									end: 29,
+									method: false,
+									shorthand: false,
+									key: {
+										type: 'MetaString',
+										start: 14,
+										end: 24,
+										value: '{!field}',
+										raw: '"{!field}"',
+										vfelExpressions: [
+											{
+												type: 'VFELExpression',
+												start: 15,
+												end: 23,
+												value: {
+													type: 'VFELIdentifier',
+													start: 17,
+													end: 22,
+													name: 'field',
+												},
+											},
+										],
+									},
+									value: {
+										type: 'Literal',
+										start: 26,
+										end: 29,
+										value: 123,
+										raw: '123',
+									},
+									kind: 'init',
+								},
+							],
+						},
+					},
+				],
+				kind: 'const',
+			},
+		],
+		sourceType: 'script',
+	},
 }
