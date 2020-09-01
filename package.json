@@ -34,7 +34,7 @@
     "babel-loader": "^6.3.2",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-env": "^1.4.0",
-    "eslint": "^3.19.0",
+    "eslint": "^4.18.2",
     "eslint-config-recommended": "^1.5.0",
     "eslint-loader": "^1.7.1",
     "eslint-plugin-babel": "^4.1.0",
